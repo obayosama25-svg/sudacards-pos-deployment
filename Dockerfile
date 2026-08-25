@@ -4,7 +4,7 @@ FROM node:18-bullseye
 RUN apt-get update && \
     apt-get install -y gnupg wget nginx supervisor && \
     wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | apt-key add - && \
-    echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list && \
+    echo "deb http://repo.mongodb.org/apt/debian bullseye/mongodb-org/6.0 main" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list && \
     apt-get update && \
     apt-get install -y mongodb-org && \
     mkdir -p /data/db /var/log/mongodb && \

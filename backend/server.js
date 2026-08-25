@@ -1,4 +1,4 @@
-﻿require('dotenv').config();
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -57,6 +57,24 @@ io.on('connection', (socket) => {
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(uploadsDir));
+
+// DEBUG LOGS
+app.get('/api/debug/logs/mongod', (req, res) => {
+    try {
+        const log = fs.readFileSync('/var/log/mongodb/mongod.log', 'utf8');
+        res.send(log);
+    } catch (err) {
+        res.send(err.message);
+    }
+});
+app.get('/api/debug/logs/supervisor', (req, res) => {
+    try {
+        const log = fs.readFileSync('/var/log/supervisor/supervisord.log', 'utf8');
+        res.send(log);
+    } catch (err) {
+        res.send(err.message);
+    }
+});
 
 // دالة مولد رقم المعاملة البنكية الموحد والفريد بطول 16 رقماً بالتمام
 function generate16DigitTransactionId() {
