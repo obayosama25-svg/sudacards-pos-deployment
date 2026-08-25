@@ -1,11 +1,60 @@
-FROM nginx:alpine
+FROM node:18-bullseye
 
-# إعداد ملف التكوين لـ Nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Install MongoDB, Nginx, and Supervisor
+RUN apt-get update && \
+    apt-get install -y gnupg wget nginx supervisor && \
+    wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | apt-key add - && \
+    echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list && \
+    apt-get update && \
+    apt-get install -y mongodb-org && \
+    mkdir -p /data/db /var/log/mongodb
 
-# نسخ صفحة الهبوط الافتراضية
-COPY index.html /usr/share/nginx/html/index.html
+WORKDIR /app
 
-EXPOSE 80
+# Copy Dashboard source code
+COPY backend ./backend
+COPY admin ./admin
 
-CMD ["nginx", "-g", "daemon off;"]
+# Setup Backend
+RUN cd backend && npm install
+
+# Setup Admin Frontend
+RUN cd admin && npm install && npm run build
+RUN cp -r admin/dist/* /var/www/html/
+
+# Setup Nginx
+RUN echo 'server { \n\
+    listen 80; \n\
+    server_name localhost; \n\
+    root /var/www/html; \n\
+    index index.html index.htm; \n\
+    location / { \n\
+        try_files $uri $uri/ /index.html; \n\
+    } \n\
+}' > /etc/nginx/sites-available/default
+
+# Setup Supervisor
+RUN echo '[supervisord] \n\
+nodaemon=true \n\
+\n\
+[program:mongod] \n\
+command=/usr/bin/mongod --bind_ip_all \n\
+user=mongodb \n\
+autostart=true \n\
+autorestart=true \n\
+\n\
+[program:backend] \n\
+command=node server.js \n\
+directory=/app/backend \n\
+environment=PORT=5000,MONGO_URI="mongodb://127.0.0.1:27017/sudacards_admin",JWT_SECRET="super_secret_sudacards_key_2026",EMAIL_USER="obayosama25@gmail.com",EMAIL_PASS="xujbphbbfuenapqd" \n\
+autostart=true \n\
+autorestart=true \n\
+\n\
+[program:nginx] \n\
+command=/usr/sbin/nginx -g "daemon off;" \n\
+autostart=true \n\
+autorestart=true' > /etc/supervisor/conf.d/supervisord.conf
+
+EXPOSE 80 5000
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
