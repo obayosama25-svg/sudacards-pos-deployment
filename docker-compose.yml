@@ -1,0 +1,54 @@
+services:
+  # ══════════════════════════════════════════════════════════════
+  # خدمة قاعدة البيانات (PostgreSQL Database)
+  # ══════════════════════════════════════════════════════════════
+  postgres:
+    image: postgres:16-alpine
+    container_name: sudacards_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-sudacards_db}
+      POSTGRES_USER: ${DB_USER:-sudacards_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-sudacards_secure_password_2026}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - sudacards_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-sudacards_user} -d ${DB_NAME:-sudacards_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ══════════════════════════════════════════════════════════════
+  # خدمة تطبيق الويب / واجهة النظام (Web App / API)
+  # ══════════════════════════════════════════════════════════════
+  app:
+    image: nginx:alpine
+    container_name: sudacards_app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:80"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgres://${DB_USER:-sudacards_user}:${DB_PASSWORD:-sudacards_secure_password_2026}@postgres:5432/${DB_NAME:-sudacards_db}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sudacards_net
+    labels:
+      # إعدادات التوجيه التلقائي لـ Dokploy و Traefik
+      - "traefik.enable=true"
+      - "traefik.http.routers.sudacards.rule=Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.sudacards.entrypoints=websecure"
+      - "traefik.http.routers.sudacards.tls.certresolver=letsencrypt"
+      - "traefik.http.services.sudacards.loadbalancer.server.port=80"
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  sudacards_net:
+    driver: bridge
