@@ -7,7 +7,8 @@ RUN apt-get update && \
     echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list && \
     apt-get update && \
     apt-get install -y mongodb-org && \
-    mkdir -p /data/db /var/log/mongodb
+    mkdir -p /data/db /var/log/mongodb && \
+    chown -R mongodb:mongodb /data/db /var/log/mongodb
 
 WORKDIR /app
 
