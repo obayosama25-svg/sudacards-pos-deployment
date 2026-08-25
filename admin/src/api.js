@@ -1,4 +1,4 @@
-const API_BASE = 'http://2.24.108.101:5000/api';
+const API_BASE = '/api';
 
 // Helper to get stored token
 const getToken = () => localStorage.getItem('sudacards_token');
