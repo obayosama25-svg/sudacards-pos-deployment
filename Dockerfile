@@ -31,8 +31,8 @@ RUN echo 'server { \n\
     location / { \n\
         try_files $uri $uri/ /index.html; \n\
     } \n\
-    location /api/ { \n\
-        proxy_pass http://127.0.0.1:5000/; \n\
+    location /api { \n\
+        proxy_pass http://127.0.0.1:5000; \n\
         proxy_http_version 1.1; \n\
         proxy_set_header Upgrade $http_upgrade; \n\
         proxy_set_header Connection "upgrade"; \n\
