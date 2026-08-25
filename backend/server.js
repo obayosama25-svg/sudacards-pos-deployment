@@ -76,6 +76,23 @@ app.get('/api/debug/logs/supervisor', (req, res) => {
     }
 });
 
+// مسار تفريغ قاعدة البيانات ومسح البيانات الوهمية
+app.get('/api/admin/clean-dummy-data', async (req, res) => {
+    try {
+        await User.deleteMany({});
+        await Transaction.deleteMany({});
+        await DeviceRecord.deleteMany({});
+        if (typeof Invoice !== 'undefined') await Invoice.deleteMany({});
+        if (typeof AuditLog !== 'undefined') await AuditLog.deleteMany({});
+        res.json({ 
+            success: true, 
+            message: 'تم مسح جميع المستخدمين والعمليات والبيانات الوهمية بنجاح من قاعدة البيانات' 
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 // دالة مولد رقم المعاملة البنكية الموحد والفريد بطول 16 رقماً بالتمام
 function generate16DigitTransactionId() {
     const timestampStr = Date.now().toString(); // 13 أرقام
