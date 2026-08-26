@@ -541,7 +541,7 @@ app.post('/api/users/register', upload.fields([
         deviceRecord.history.push({
             user: newUser._id,
             accountNumber: newUser.accountNumber,
-            name: category === 'individual' ? fullName : firstName,
+            name: category === 'individual' ? (fullName || `${firstName} ${lastName}`.trim()) : firstName,
             linkedAt: new Date()
         });
         await deviceRecord.save();
@@ -560,7 +560,7 @@ app.post('/api/users/register', upload.fields([
                 userId,
                 accountNumber,
                 email: newUser.email,
-                fullName: category === 'individual' ? fullName : firstName
+                fullName: category === 'individual' ? (fullName || `${firstName} ${lastName}`.trim()) : firstName
             }
         });
     } catch (error) {
