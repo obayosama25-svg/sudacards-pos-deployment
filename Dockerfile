@@ -27,6 +27,7 @@ RUN cp -r admin/dist/* /var/www/html/
 RUN echo 'server { \n\
     listen 80; \n\
     server_name localhost; \n\
+    client_max_body_size 50m; \n\
     root /var/www/html; \n\
     index index.html index.htm; \n\
     location / { \n\
