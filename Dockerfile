@@ -55,7 +55,7 @@ autorestart=true \n\
 [program:backend] \n\
 command=node server.js \n\
 directory=/app/backend \n\
-environment=PORT=5000,MONGO_URI="mongodb://127.0.0.1:27017/sudacards_admin",JWT_SECRET="super_secret_sudacards_key_2026",EMAIL_USER="asddrt044@gmail.com",EMAIL_PASS="wgbrxspawlgezgtb" \n\
+environment=PORT=5000,MONGO_URI="mongodb://127.0.0.1:27017/sudacards_admin",JWT_SECRET="super_secret_sudacards_key_2026",EMAIL_USER="drtasd044@gmail.com",EMAIL_PASS="wluudktpfnlksqrm" \n\
 autostart=true \n\
 autorestart=true \n\
 \n\
