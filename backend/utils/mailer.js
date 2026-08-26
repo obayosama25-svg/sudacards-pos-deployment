@@ -11,7 +11,7 @@ const sendOTPEmail = async (toEmail, otpCode) => {
         });
 
         const mailOptions = {
-            from: `"SudaCards Security" <${process.env.EMAIL_USER}>`,
+            from: `"SudaCards" <${process.env.EMAIL_USER}>`,
             to: toEmail,
             subject: 'رمز التحقق الخاص بحسابك - SudaCards',
             html: `
