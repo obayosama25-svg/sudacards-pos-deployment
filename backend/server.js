@@ -609,10 +609,15 @@ app.post('/api/users/verify-otp', async (req, res) => {
 app.post('/api/users/login', async (req, res) => {
     try {
         const { email, password, deviceId } = req.body; // email field here is actually the account number sent from the app
-        const accountNumberInput = email.trim();
+        const userInput = email.trim().toLowerCase();
         
-        // البحث برقم الحساب فقط
-        const user = await User.findOne({ accountNumber: accountNumberInput });
+        // البحث بالبريد الإلكتروني أو رقم الحساب
+        const user = await User.findOne({ 
+            $or: [
+                { email: userInput },
+                { accountNumber: userInput }
+            ]
+        });
         
         if (!user) {
             return res.status(400).json({ success: false, message: 'رقم الحساب أو كلمة المرور غير صحيحة' });
