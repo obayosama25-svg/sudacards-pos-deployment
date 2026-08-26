@@ -546,8 +546,12 @@ app.post('/api/users/register', upload.fields([
         });
         await deviceRecord.save();
 
-        // Send OTP via Email
-        await sendOTPEmail(newUser.email, otpCode);
+        // Send OTP via Email (لا توقف التسجيل إذا فشل الإرسال)
+        try {
+            await sendOTPEmail(newUser.email, otpCode);
+        } catch (emailError) {
+            console.error('⚠️ تحذير: فشل إرسال الإيميل ولكن تم إنشاء الحساب بنجاح:', emailError.message);
+        }
 
         res.status(201).json({
             success: true,
